@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Manage Services | AutoCare{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">Workshop records</span>
+        <h1>Service Management</h1>
+        <p>Find bookings, update job status, record charges and manage bills.</p>
+    </div>
+    <a href="{{ url_for('add_service') }}" class="btn">＋ New Booking</a>
+</section>
+
+<div class="toolbar">
+    <form class="search-form" method="GET">
+        <div class="search-box">
+            <span class="search-icon">⌕</span>
+            <input type="search" name="search" value="{{ search }}" placeholder="Search customer, phone or registration..." aria-label="Search service records">
+        </div>
+        <button class="btn secondary" type="submit">Search</button>
+        {% if search %}<a class="btn ghost" href="{{ url_for('services') }}">Clear</a>{% endif %}
+    </form>
+</div>
+
+{% if search %}
+<div class="summary-strip">
+    <p>Showing results for <strong>“{{ search }}”</strong></p>
+    <a class="btn ghost small" href="{{ url_for('services') }}">Reset search</a>
+</div>
+{% endif %}
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <h2>Service Records</h2>
+            <p>Update each booking directly from the table.</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Vehicle</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Status & Billing</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for s in services %}
+                <tr>
+                    <td>
+                        <strong>{{ s.customer }}</strong><br>
+                        <small>{{ s.phone }}</small>
+                    </td>
+                    <td>
+                        <strong>{{ s.vehicle }}</strong><br>
+                        <small class="mono">{{ s.reg_no }}</small>
+                    </td>
+                    <td>{{ s.service_type }}</td>
+                    <td>{{ s.service_date }}</td>
+                    <td>
+                        <div class="service-actions">
+                            <form class="update-form" method="POST" action="{{ url_for('update_service', id=s.id) }}">
+                                <select name="status" aria-label="Service status">
+                                    {% for status in ['Pending', 'In Progress', 'Completed'] %}
+                                        <option value="{{ status }}" {% if s.status == status %}selected{% endif %}>{{ status }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="number" name="amount" min="0" step="0.01" value="{{ s.amount }}" placeholder="Amount" aria-label="Service bill amount">
+                                <button class="btn small" type="submit">Save</button>
+                            </form>
+
+                            {% if s.status == 'Completed' %}
+                                <div class="bill-row">
+                                    <form method="POST" action="{{ url_for('upload_bill', id=s.id) }}" enctype="multipart/form-data">
+                                        <input type="file" name="bill_file" accept=".pdf,.jpg,.jpeg,.png,.webp" required aria-label="Select bill file">
+                                        <button class="btn secondary small" type="submit">
+                                            {% if s.bill_file %}Replace{% else %}Upload{% endif %}
+                                        </button>
+                                    </form>
+                                    {% if s.bill_file %}
+                                        <div class="bill-links"><a href="{{ url_for('view_bill', id=s.id) }}" target="_blank" rel="noopener">View bill ↗</a></div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="actions-cell">
+                        <form method="POST" action="{{ url_for('delete_service', id=s.id) }}" onsubmit="return confirmDelete()">
+                            <button class="btn danger small" type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="empty">No matching service records found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | AutoCare{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">Overview</span>
+        <h1>Dashboard</h1>
+        <p>A quick view of bookings, workshop activity and completed revenue.</p>
+    </div>
+    <a href="{{ url_for('add_service') }}" class="btn">＋ New Booking</a>
+</section>
+
+<section class="stats" aria-label="Service statistics">
+    <article class="stat-card">
+        <div class="stat-top"><span>Total Bookings</span><span class="stat-icon">▦</span></div>
+        <h2>{{ total }}</h2>
+        <small>All recorded services</small>
+    </article>
+    <article class="stat-card">
+        <div class="stat-top"><span>Pending</span><span class="stat-icon">◷</span></div>
+        <h2>{{ pending }}</h2>
+        <small>Awaiting completion</small>
+    </article>
+    <article class="stat-card">
+        <div class="stat-top"><span>Completed</span><span class="stat-icon">✓</span></div>
+        <h2>{{ completed }}</h2>
+        <small>Finished service jobs</small>
+    </article>
+    <article class="stat-card">
+        <div class="stat-top"><span>Revenue</span><span class="stat-icon">₹</span></div>
+        <h2>₹{{ "%.2f"|format(revenue) }}</h2>
+        <small>From completed services</small>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <div>
+            <h2>Recent Service Bookings</h2>
+            <p>Your five most recent workshop records.</p>
+        </div>
+        <a href="{{ url_for('services') }}">View all services →</a>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Vehicle</th>
+                    <th>Registration</th>
+                    <th>Service</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for s in services[:5] %}
+                <tr>
+                    <td><strong>{{ s.customer }}</strong></td>
+                    <td>{{ s.vehicle }}</td>
+                    <td><span class="mono">{{ s.reg_no }}</span></td>
+                    <td>{{ s.service_type }}</td>
+                    <td>{{ s.service_date }}</td>
+                    <td><span class="status {{ s.status|lower|replace(' ', '-') }}">{{ s.status }}</span></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="empty">No bookings yet. Create your first service booking to get started.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

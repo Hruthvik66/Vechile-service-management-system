@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>{% block title %}Vehicle Service{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <style>
+        :root {
+            --bg: #0b0d10;
+            --surface: #111419;
+            --surface-2: #161a20;
+            --surface-3: #1c2129;
+            --border: #282e37;
+            --border-soft: #20252d;
+            --text: #f4f5f7;
+            --muted: #939aa6;
+            --accent: #e8ff5b;
+            --accent-hover: #f0ff82;
+            --accent-ink: #111406;
+            --danger: #ff6b6b;
+            --danger-bg: rgba(255, 107, 107, .10);
+            --warning: #f6c75f;
+            --success: #63d89b;
+            --info: #71a7ff;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+        }
+
+        * { box-sizing: border-box; }
+        html { background: var(--bg); }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 95% 0%, rgba(232,255,91,.055), transparent 24rem),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button, input, select { font: inherit; }
+        button, a { -webkit-tap-highlight-color: transparent; }
+
+        .app-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 26px 18px;
+            border-right: 1px solid var(--border-soft);
+            background: rgba(12, 14, 18, .96);
+            display: flex;
+            flex-direction: column;
+            z-index: 20;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 4px 8px 24px;
+            font-size: 18px;
+            font-weight: 750;
+            letter-spacing: -.02em;
+        }
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: var(--accent);
+            color: var(--accent-ink);
+            font-size: 18px;
+        }
+        .nav-label {
+            margin: 8px 10px 10px;
+            color: #646c78;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+        }
+        .side-nav { display: grid; gap: 6px; }
+        .side-nav a {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 12px;
+            border-radius: 10px;
+            color: #b9bec7;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .18s ease, color .18s ease;
+        }
+        .side-nav a:hover { background: var(--surface-2); color: var(--text); }
+        .side-nav a.active { background: var(--surface-3); color: var(--text); box-shadow: inset 2px 0 var(--accent); }
+        .nav-icon { width: 19px; text-align: center; opacity: .9; }
+        .sidebar-bottom { margin-top: auto; }
+        .sidebar-card {
+            padding: 14px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            color: var(--muted);
+            font-size: 12px;
+            background: #0f1216;
+        }
+        .sidebar-card strong { display: block; margin-bottom: 4px; color: #dce0e6; font-size: 13px; }
+
+        .workspace { min-width: 0; display: flex; flex-direction: column; }
+        .mobile-header {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 64px;
+            padding: 0 18px;
+            border-bottom: 1px solid var(--border-soft);
+            background: rgba(11,13,16,.94);
+            backdrop-filter: blur(14px);
+        }
+        .mobile-header .brand { padding: 0; font-size: 16px; }
+        .mobile-nav { display: flex; gap: 6px; }
+        .mobile-nav a { padding: 8px 10px; border-radius: 9px; color: var(--muted); font-size: 13px; font-weight: 650; }
+        .mobile-nav a.active { background: var(--surface-3); color: var(--text); }
+
+        .container { width: min(100%, 1440px); margin: 0 auto; padding: 34px 36px 44px; }
+        .content-stack { display: grid; gap: 22px; }
+        .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+        .page-heading h1 { margin: 0; font-size: clamp(26px, 3vw, 36px); line-height: 1.15; letter-spacing: -.035em; }
+        .page-heading p { margin: 7px 0 0; color: var(--muted); font-size: 14px; }
+        .eyebrow { display: block; margin-bottom: 8px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+
+        .btn {
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            background: var(--accent);
+            color: var(--accent-ink);
+            cursor: pointer;
+            font-weight: 750;
+            font-size: 13px;
+            transition: transform .15s ease, background .15s ease, border-color .15s ease;
+        }
+        .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); transform: translateY(-1px); }
+        .btn.secondary { border-color: var(--border); background: var(--surface-2); color: #d7dbe1; }
+        .btn.secondary:hover { background: var(--surface-3); border-color: #3a424e; }
+        .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+        .btn.ghost:hover { background: var(--surface-2); color: var(--text); }
+        .btn.danger { border-color: rgba(255,107,107,.24); background: var(--danger-bg); color: #ff8b8b; }
+        .btn.danger:hover { background: rgba(255,107,107,.17); border-color: rgba(255,107,107,.38); }
+        .btn.small { min-height: 34px; padding: 7px 11px; font-size: 12px; }
+        .icon-btn { width: 40px; padding: 0; }
+
+        .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; }
+        .stat-card {
+            min-width: 0;
+            padding: 19px;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, #13171c, #101318);
+            box-shadow: 0 1px 0 rgba(255,255,255,.02) inset;
+        }
+        .stat-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .stat-card span { color: var(--muted); font-size: 12px; font-weight: 650; }
+        .stat-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; background: #1c2128; color: #bcc3cd; font-size: 14px; }
+        .stat-card h2 { margin: 16px 0 2px; font-size: 28px; line-height: 1; letter-spacing: -.035em; }
+        .stat-card small { color: #6f7782; font-size: 11px; }
+
+        .panel {
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
+            background: rgba(17,20,25,.92);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 20px; border-bottom: 1px solid var(--border-soft); }
+        .panel-heading h2, .panel-heading h3 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+        .panel-heading p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+        .panel-heading > a:not(.btn) { color: #bfc6d0; font-size: 12px; font-weight: 650; }
+        .panel-heading > a:not(.btn):hover { color: var(--accent); }
+        .panel-body { padding: 20px; }
+
+        .table-wrap { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 760px; }
+        th {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border-soft);
+            background: #0f1216;
+            color: #777f8b;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        td { padding: 15px 16px; border-bottom: 1px solid #1d2229; color: #d8dce2; font-size: 13px; vertical-align: middle; }
+        tbody tr { transition: background .15s ease; }
+        tbody tr:hover { background: rgba(255,255,255,.018); }
+        tbody tr:last-child td { border-bottom: 0; }
+        td strong { color: var(--text); }
+        td small, .muted { color: var(--muted); }
+        .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; }
+        .empty { padding: 42px 18px; color: var(--muted); text-align: center; }
+
+        .status { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid transparent; border-radius: 999px; font-size: 11px; font-weight: 750; white-space: nowrap; }
+        .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px rgba(255,255,255,.025); }
+        .status.pending { color: var(--warning); background: rgba(246,199,95,.08); border-color: rgba(246,199,95,.14); }
+        .status.in-progress { color: var(--info); background: rgba(113,167,255,.08); border-color: rgba(113,167,255,.14); }
+        .status.completed { color: var(--success); background: rgba(99,216,155,.08); border-color: rgba(99,216,155,.14); }
+
+        .flash { margin-bottom: 18px; padding: 12px 14px; border: 1px solid rgba(232,255,91,.16); border-radius: 10px; background: rgba(232,255,91,.07); color: #e8efbd; font-size: 13px; }
+
+        .form-panel { max-width: 980px; }
+        .form-section { padding: 22px; border-bottom: 1px solid var(--border-soft); }
+        .form-section:last-of-type { border-bottom: 0; }
+        .form-section-heading { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+        .step-number { flex: 0 0 auto; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 8px; background: #232a32; color: var(--accent); font-size: 11px; font-weight: 800; }
+        .form-section h2 { margin: 1px 0 3px; font-size: 15px; }
+        .form-section p { margin: 0; color: var(--muted); font-size: 12px; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        label { display: grid; gap: 7px; color: #bfc5ce; font-size: 12px; font-weight: 650; }
+        .required { color: var(--accent); }
+        input, select {
+            width: 100%;
+            min-height: 42px;
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            background: #0d1014;
+            color: var(--text);
+            font-size: 13px;
+            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        input::placeholder { color: #555d69; }
+        input:focus, select:focus { border-color: rgba(232,255,91,.65); box-shadow: 0 0 0 3px rgba(232,255,91,.08); background: #101419; }
+        input[type="file"] { padding: 6px; color: var(--muted); }
+        input[type="file"]::file-selector-button { margin-right: 10px; padding: 7px 10px; border: 0; border-radius: 7px; background: #252b34; color: #d7dce3; cursor: pointer; }
+        .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 18px 22px; background: #0f1216; }
+
+        .toolbar { display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 16px; border: 1px solid var(--border-soft); border-radius: 13px; background: var(--surface); }
+        .search-form { flex: 1; display: flex; align-items: center; gap: 8px; }
+        .search-box { position: relative; flex: 1; }
+        .search-box input { padding-left: 38px; }
+        .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #626b77; font-size: 13px; pointer-events: none; }
+
+        .service-actions { min-width: 300px; display: grid; gap: 9px; }
+        .update-form { display: grid; grid-template-columns: minmax(110px, 1fr) minmax(90px, .75fr) auto; gap: 7px; align-items: center; }
+        .service-actions input, .service-actions select { min-height: 35px; padding: 6px 8px; font-size: 12px; }
+        .bill-row { display: flex; align-items: center; gap: 7px; }
+        .bill-row form { flex: 1; display: flex; gap: 7px; align-items: center; }
+        .bill-row input[type="file"] { min-width: 150px; }
+        .bill-links a { color: var(--accent); font-size: 12px; font-weight: 650; }
+        .actions-cell { width: 1%; white-space: nowrap; }
+
+        .summary-strip { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; padding: 14px 16px; border: 1px solid var(--border-soft); border-radius: 12px; background: linear-gradient(90deg, #11151a, #101318); }
+        .summary-strip p { margin: 0; color: var(--muted); font-size: 12px; }
+        .summary-strip strong { color: #e7e9ec; }
+
+        footer { margin-top: auto; padding: 18px 36px 28px; color: #545c67; font-size: 11px; }
+
+        @media (max-width: 1100px) {
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 820px) {
+            .app-shell { display: block; }
+            .sidebar { display: none; }
+            .mobile-header { display: flex; }
+            .container { padding: 24px 18px 34px; }
+            .page-heading { align-items: flex-start; }
+            .form-grid { grid-template-columns: 1fr; }
+            footer { padding: 16px 18px 24px; }
+        }
+        @media (max-width: 620px) {
+            .mobile-header { align-items: center; }
+            .mobile-header .brand span:last-child { display: none; }
+            .mobile-nav a { padding: 8px; font-size: 12px; }
+            .page-heading { flex-direction: column; }
+            .page-heading .btn { width: 100%; }
+            .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-card h2 { font-size: 23px; }
+            .toolbar { align-items: stretch; flex-direction: column; }
+            .search-form { align-items: stretch; }
+            .search-form .btn { flex: 0 0 auto; }
+            .form-actions { flex-direction: column-reverse; }
+            .form-actions .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark">A</span>
+            <span>AutoCare</span>
+        </a>
+
+        <div class="nav-label">Workspace</div>
+        <nav class="side-nav" aria-label="Primary navigation">
+            <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                <span class="nav-icon">⌂</span><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('services') }}" class="{% if request.endpoint in ['services', 'update_service', 'upload_bill', 'view_bill'] %}active{% endif %}">
+                <span class="nav-icon">≡</span><span>Services</span>
+            </a>
+            <a href="{{ url_for('add_service') }}" class="{% if request.endpoint == 'add_service' %}active{% endif %}">
+                <span class="nav-icon">＋</span><span>New Booking</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-card">
+                <strong>Service Center</strong>
+                Manage bookings, progress and billing from one workspace.
+            </div>
+        </div>
+    </aside>
+
+    <div class="workspace">
+        <header class="mobile-header">
+            <a class="brand" href="{{ url_for('index') }}">
+                <span class="brand-mark">A</span><span>AutoCare</span>
+            </a>
+            <nav class="mobile-nav" aria-label="Mobile navigation">
+                <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('services') }}" class="{% if request.endpoint == 'services' %}active{% endif %}">Services</a>
+                <a href="{{ url_for('add_service') }}" class="{% if request.endpoint == 'add_service' %}active{% endif %}">New</a>
+            </nav>
+        </header>
+
+        <main class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="flash">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer>AutoCare · Vehicle Service Management System</footer>
+    </div>
+</div>
+</body>
+</html>

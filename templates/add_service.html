@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}New Booking | AutoCare{% endblock %}
+{% block content %}
+<section class="page-heading">
+    <div>
+        <span class="eyebrow">Create record</span>
+        <h1>New Service Booking</h1>
+        <p>Add customer, vehicle and service details to schedule a workshop visit.</p>
+    </div>
+    <a class="btn secondary" href="{{ url_for('index') }}">← Back to Dashboard</a>
+</section>
+
+<form class="panel form-panel" method="POST" action="{{ url_for('add_service') }}">
+    <section class="form-section">
+        <div class="form-section-heading">
+            <span class="step-number">01</span>
+            <div><h2>Customer Information</h2><p>Basic contact details for the booking.</p></div>
+        </div>
+        <div class="form-grid">
+            <label>Customer Name <span class="required">*</span>
+                <input name="customer" required autocomplete="name" placeholder="Enter full name">
+            </label>
+            <label>Phone Number <span class="required">*</span>
+                <input name="phone" required type="tel" autocomplete="tel" pattern="[0-9+() -]{7,20}" placeholder="Enter phone number">
+            </label>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-heading">
+            <span class="step-number">02</span>
+            <div><h2>Vehicle Information</h2><p>Identify the vehicle arriving for service.</p></div>
+        </div>
+        <div class="form-grid">
+            <label>Vehicle Model <span class="required">*</span>
+                <input name="vehicle" required placeholder="e.g. Hyundai i20">
+            </label>
+            <label>Registration Number <span class="required">*</span>
+                <input name="reg_no" required autocapitalize="characters" placeholder="e.g. KA01AB1234">
+            </label>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <div class="form-section-heading">
+            <span class="step-number">03</span>
+            <div><h2>Service Details</h2><p>Select the requested work and preferred service date.</p></div>
+        </div>
+        <div class="form-grid">
+            <label>Service Type <span class="required">*</span>
+                <select name="service_type" required>
+                    <option value="">Select service</option>
+                    <option>General Service</option>
+                    <option>Oil Change</option>
+                    <option>Engine Repair</option>
+                    <option>Brake Inspection</option>
+                    <option>Tyre Replacement</option>
+                    <option>Full Inspection</option>
+                </select>
+            </label>
+            <label>Service Date <span class="required">*</span>
+                <input type="date" name="service_date" min="{{ today }}" required>
+            </label>
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <a class="btn ghost" href="{{ url_for('index') }}">Cancel</a>
+        <button class="btn" type="submit">Create Booking →</button>
+    </div>
+</form>
+{% endblock %}
