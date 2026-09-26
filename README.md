@@ -305,8 +305,10 @@ The SQLite database and required table are initialized automatically when the ap
 ---
 
 ## Author
-
-**Project:** Vehicle Service Management System (AutoCare)
+**Student Name:** HRUTHVIK HG
+**USN:** U18IN24S0017  
+**Course:** BCA  
+**Project:** Vehicle Service Management System 
 
 **Technologies:**
 Python | Flask | SQLite | HTML | CSS | JavaScript | Jinja2
